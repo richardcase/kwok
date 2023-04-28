@@ -1,6 +1,6 @@
 module sigs.k8s.io/kwok
 
-go 1.20
+go 1.19
 
 require (
 	github.com/blang/semver/v4 v4.0.0
@@ -26,10 +26,10 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.27.1
 	k8s.io/apimachinery v0.27.1
-	k8s.io/apiserver v0.27.1
+	k8s.io/apiserver v0.26.1
 	k8s.io/client-go v0.27.1
-	k8s.io/code-generator v0.27.1
-	k8s.io/cri-api v0.27.1
+	k8s.io/code-generator v0.26.1
+	k8s.io/cri-api v0.26.1
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491
 	sigs.k8s.io/yaml v1.3.0
 )
