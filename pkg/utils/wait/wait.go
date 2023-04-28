@@ -21,7 +21,8 @@ import (
 	"time"
 
 	//nolint:depguard
-	"k8s.io/apimachinery/pkg/util/wait"
+
+	"sigs.k8s.io/kwok/pkg/utils/wait/imported"
 )
 
 const (
@@ -30,10 +31,12 @@ const (
 )
 
 // Backoff is used to specify the backoff for the wait
-type Backoff = wait.Backoff
+// type Backoff = wait.Backoff
+type Backoff = imported.Backoff
 
 // ConditionWithContextFunc is a function that can be used to poll a condition
-type ConditionWithContextFunc = wait.ConditionWithContextFunc
+// type ConditionWithContextFunc = wait.ConditionWithContextFunc
+type ConditionWithContextFunc = imported.ConditionWithContextFunc
 
 // Options is used to configure the wait
 type Options struct {
@@ -115,8 +118,11 @@ func Poll(ctx context.Context, conditionFunc ConditionWithContextFunc, opts ...O
 		}
 	}
 
+	//TODO: change these when we can upgrade to 0.27.1
 	if options.Backoff != nil {
-		return wait.ExponentialBackoffWithContext(ctx, *options.Backoff, cf)
+		//return wait.ExponentialBackoffWithContext(ctx, *options.Backoff, cf)
+		return imported.ExponentialBackoffWithContext(ctx, *options.Backoff, cf)
 	}
-	return wait.PollUntilContextTimeout(ctx, options.Interval, options.Timeout, options.Immediate, cf)
+	//return wait.PollUntilContextTimeout(ctx, options.Interval, options.Timeout, options.Immediate, cf)
+	return imported.PollUntilContextTimeout(ctx, options.Interval, options.Timeout, options.Immediate, cf)
 }
