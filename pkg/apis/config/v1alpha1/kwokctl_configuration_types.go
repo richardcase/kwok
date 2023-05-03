@@ -319,6 +319,10 @@ type KwokctlConfigurationOptions struct {
 	// NodeStatusUpdateFrequencyMilliseconds is --node-status-update-frequency for kwok like kubelet.
 	// +default=1200000
 	NodeStatusUpdateFrequencyMilliseconds int64 `json:"nodeStatusUpdateFrequencyMilliseconds,omitempty"`
+
+	// BindAddress allows specifying the address for the api server to bind to. Defaults to 127.0.0.1
+	// +default=127.0.0.1
+	BindAddress string `json:"bindAddress,omitempty"`
 }
 
 // Component is a component of the cluster.

@@ -17,6 +17,7 @@ limitations under the License.
 package internalversion
 
 import (
+	conversion "k8s.io/apimachinery/pkg/conversion"
 	configv1alpha1 "sigs.k8s.io/kwok/pkg/apis/config/v1alpha1"
 	"sigs.k8s.io/kwok/pkg/apis/v1alpha1"
 )
@@ -261,4 +262,8 @@ func ConvertToInternalAttach(in *v1alpha1.Attach) (*Attach, error) {
 		return nil, err
 	}
 	return &out, nil
+}
+
+func Convert_internalversion_KwokctlConfigurationOptions_To_v1alpha1_KwokctlConfigurationOptions(in *KwokctlConfigurationOptions, out *configv1alpha1.KwokctlConfigurationOptions, s conversion.Scope) error {
+	return autoConvert_internalversion_KwokctlConfigurationOptions_To_v1alpha1_KwokctlConfigurationOptions(in, out, s)
 }

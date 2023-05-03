@@ -431,7 +431,7 @@ func (c *Cluster) Install(ctx context.Context) error {
 	kubeconfigData, err := k8s.BuildKubeconfig(k8s.BuildKubeconfigConfig{
 		ProjectName:  c.Name(),
 		SecurePort:   conf.SecurePort,
-		Address:      scheme + "://127.0.0.1:" + format.String(conf.KubeApiserverPort),
+		Address:      scheme + "://" + conf.BindAddress + ":" + format.String(conf.KubeApiserverPort),
 		AdminCrtPath: adminCertPath,
 		AdminKeyPath: adminKeyPath,
 	})
