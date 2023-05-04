@@ -119,6 +119,8 @@ func NewCommand(ctx context.Context) *cobra.Command {
 	cmd.Flags().DurationVar(&flags.Timeout, "timeout", 0, "Timeout for waiting for the cluster to be created")
 	cmd.Flags().DurationVar(&flags.Wait, "wait", 0, "Wait for the cluster to be ready")
 	cmd.Flags().StringVar(&flags.Kubeconfig, "kubeconfig", flags.Kubeconfig, "The path to the kubeconfig file will be added to the newly created cluster and set to current-context")
+	cmd.Flags().BoolVar(&flags.Options.KubeConfigEmbedCerts, "kubeconfig-embed-certs", flags.Options.KubeConfigEmbedCerts, "Embed certificates in kubeconfig files")
+	cmd.Flags().StringVar(&flags.Options.BindAddress, "bind-addr", "127.0.0.1", "What address should the APIServer bind to")
 	return cmd
 }
 

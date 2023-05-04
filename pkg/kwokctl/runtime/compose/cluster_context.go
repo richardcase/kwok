@@ -18,6 +18,8 @@ package compose
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
@@ -39,7 +41,7 @@ func (c *Cluster) AddContext(ctx context.Context, kubeconfigPath string) error {
 	if conf.SecurePort {
 		scheme = "https"
 	}
-	localAddress := "127.0.0.1"
+	localAddress := conf.BindAddress
 
 	pkiPath := c.GetWorkdirPath(runtime.PkiName)
 	adminKeyPath := path.Join(pkiPath, "admin.key")
@@ -57,10 +59,28 @@ func (c *Cluster) AddContext(ctx context.Context, kubeconfigPath string) error {
 	if conf.SecurePort {
 		kubeConfig.Cluster.InsecureSkipTLSVerify = true
 		kubeConfig.Context.AuthInfo = c.Name()
-		kubeConfig.User = &clientcmdapi.AuthInfo{
-			ClientCertificate: adminCertPath,
-			ClientKey:         adminKeyPath,
+		if !conf.KubeConfigEmbedCerts {
+			kubeConfig.User = &clientcmdapi.AuthInfo{
+				ClientCertificate: adminCertPath,
+				ClientKey:         adminKeyPath,
+			}
+		} else {
+			certData, err := os.ReadFile(adminCertPath)
+			if err != nil {
+				return fmt.Errorf("reading certificate file %s: %w", adminCertPath, err)
+			}
+
+			keyData, err := os.ReadFile(adminKeyPath)
+			if err != nil {
+				return fmt.Errorf("reading certificate file %s: %w", adminKeyPath, err)
+			}
+
+			kubeConfig.User = &clientcmdapi.AuthInfo{
+				ClientCertificateData: certData,
+				ClientKeyData:         keyData,
+			}
 		}
+
 	}
 	err = kubeconfig.AddContext(kubeconfigPath, c.Name(), kubeConfig)
 	if err != nil {

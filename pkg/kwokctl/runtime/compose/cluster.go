@@ -434,6 +434,7 @@ func (c *Cluster) Install(ctx context.Context) error {
 		Address:      scheme + "://" + conf.BindAddress + ":" + format.String(conf.KubeApiserverPort),
 		AdminCrtPath: adminCertPath,
 		AdminKeyPath: adminKeyPath,
+		EmbedCerts:   conf.KubeConfigEmbedCerts,
 	})
 	if err != nil {
 		return err
@@ -445,6 +446,7 @@ func (c *Cluster) Install(ctx context.Context) error {
 		Address:      scheme + "://" + c.Name() + "-kube-apiserver:" + format.String(inClusterPort),
 		AdminCrtPath: inClusterAdminCertPath,
 		AdminKeyPath: inClusterAdminKeyPath,
+		EmbedCerts:   false, // Always false for in-cluster kubeconfig
 	})
 	if err != nil {
 		return err

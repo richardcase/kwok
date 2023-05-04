@@ -465,6 +465,7 @@ func (c *Cluster) Install(ctx context.Context) error {
 		Address:      scheme + "://" + localAddress + ":" + format.String(conf.KubeApiserverPort),
 		AdminCrtPath: adminCertPath,
 		AdminKeyPath: adminKeyPath,
+		EmbedCerts:   conf.KubeConfigEmbedCerts,
 	})
 	if err != nil {
 		return err

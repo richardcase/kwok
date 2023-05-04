@@ -17,26 +17,79 @@ limitations under the License.
 package k8s
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
+	"os"
 
-	_ "embed"
+	"github.com/pkg/errors"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
+	v1 "k8s.io/client-go/tools/clientcmd/api/v1"
 )
-
-//go:embed kubeconfig.yaml.tpl
-var kubeconfigYamlTpl string
-
-var kubeconfigYamlTemplate = template.Must(template.New("_").Parse(kubeconfigYamlTpl))
 
 // BuildKubeconfig builds a kubeconfig file from the given parameters.
 func BuildKubeconfig(conf BuildKubeconfigConfig) (string, error) {
-	buf := bytes.NewBuffer(nil)
-	err := kubeconfigYamlTemplate.Execute(buf, conf)
-	if err != nil {
-		return "", fmt.Errorf("build kubeconfig error: %w", err)
+
+	cfg := &v1.Config{
+		APIVersion:     v1.SchemeGroupVersion.Version,
+		Kind:           "Config",
+		CurrentContext: conf.ProjectName,
+		Clusters: []v1.NamedCluster{
+			{
+				Name: conf.ProjectName,
+				Cluster: v1.Cluster{
+					Server: conf.Address,
+				},
+			},
+		},
+		Contexts: []v1.NamedContext{
+			{
+				Name: conf.ProjectName,
+				Context: v1.Context{
+					Cluster: conf.ProjectName,
+				},
+			},
+		},
 	}
-	return buf.String(), nil
+
+	if conf.SecurePort {
+		cfg.Clusters[0].Cluster.InsecureSkipTLSVerify = true
+		cfg.Contexts[0].Context.AuthInfo = conf.ProjectName
+
+		user := v1.AuthInfo{}
+		if !conf.EmbedCerts {
+			user.ClientCertificate = conf.AdminCrtPath
+			user.ClientKey = conf.AdminKeyPath
+		} else {
+			data, err := os.ReadFile(conf.AdminCrtPath)
+			if err != nil {
+				return "", fmt.Errorf("reading certificate file %s: %w", conf.AdminCrtPath, err)
+			}
+			user.ClientCertificateData = data
+
+			data, err = os.ReadFile(conf.AdminKeyPath)
+			if err != nil {
+				return "", fmt.Errorf("reading certificate file %s: %w", conf.AdminKeyPath, err)
+			}
+			user.ClientKeyData = data
+		}
+
+		cfg.AuthInfos = []v1.NamedAuthInfo{
+			{
+				Name:     conf.ProjectName,
+				AuthInfo: user,
+			},
+		}
+	}
+
+	out, err := runtime.Encode(clientcmdlatest.Codec, cfg)
+
+	//out, err := clientcmd.Write(*cfg)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to serialize config to yaml")
+	}
+
+	return string(out), nil
 }
 
 // BuildKubeconfigConfig is the configuration for BuildKubeconfig.
@@ -46,4 +99,5 @@ type BuildKubeconfigConfig struct {
 	Address      string
 	AdminCrtPath string
 	AdminKeyPath string
+	EmbedCerts   bool
 }

@@ -207,6 +207,9 @@ type KwokctlConfigurationOptions struct {
 	// BindAddress allows specifying the address for the api server to bind to. Defaults to 127.0.0.1
 	// +default=127.0.0.1
 	BindAddress string `json:"bindAddress,omitempty"`
+
+	// KubeConfigEmbedCerts is the flag to enable embedding certs in the kubeconfig file instead of using files.
+	KubeConfigEmbedCerts bool
 }
 
 // Component is a component of the cluster.
